@@ -39,7 +39,8 @@ text_rot_z=0
 bpm_path=C:\xampp\htdocs\pulsometroalvarro71\bpm.txt
 ```
 
-El archivo `bpm.txt` debe contener únicamente un número, que representa tu frecuencia cardíaca actual (BPM).
+El archivo `bpm.txt` debe contener únicamente un número, que representa tu frecuencia cardíaca actual (BPM).  
+**Nota:** Este archivo se genera y actualiza a través del proyecto [Pulsometro Local](https://github.com/alvarro71/Pulsometro-Local).
 
 ---
 
@@ -74,4 +75,3 @@ Puedes usarlo, modificarlo y distribuirlo libremente, siempre dando crédito al 
 
 Desarrollado por **Alvarro71**  
 Este documento y el script incluyen pequeñas partes generadas con la ayuda de ChatGPT y GitHub Copilot.
----
