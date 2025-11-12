@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+    <BeatSaberDir>
+      <!--Path to your Beat Saber folder (used for references)-->
+    </BeatSaberDir>
+    <!-- Path to your Beat Saber install, only set if different from BeatSaberDir. -->
+    <!--<GameDirectory></GameDirectory>-->
+  </PropertyGroup>
+  <PropertyGroup>
+    <ReferencePath>B:\BS\BSManager\BSInstances\1.37.1\Beat Saber_Data\Managed;B:\BS\BSManager\BSInstances\1.37.1\Libs;B:\BS\BSManager\BSInstances\1.37.1\Plugins</ReferencePath>
+  </PropertyGroup>
+</Project>
