@@ -217,16 +217,18 @@ namespace BSHeartRateHTTPLocalRequest
         private IEnumerator UpdateBpmDisplay()
         {
             string lastSceneName = "";
+            string lastBpm = "";
             float sceneCheckTimer = 0f;
-            float widgetCheckTimer = 0f;
+            float bpmUpdateTimer = 0f;
 
             while (true)
             {
-                sceneCheckTimer += 0.1f;
-                widgetCheckTimer += 0.1f;
-                PluginConfig.LoadBpm();
-                // Actualizar escena cada 2s
-                if (sceneCheckTimer >= 1f)
+                float delta = Time.deltaTime;
+                sceneCheckTimer += delta;
+                bpmUpdateTimer += delta;
+
+                // Actualizar escena cada 0.5s
+                if (sceneCheckTimer >= 0.5f)
                 {
                     Scene activeScene = SceneManager.GetActiveScene();
                     lastSceneName = activeScene.name;
@@ -235,57 +237,72 @@ namespace BSHeartRateHTTPLocalRequest
                     sceneCheckTimer = 0f;
                 }
 
-                // Mostrar BPM
-                if (int.TryParse(PluginConfig.PulsometerRaw, out int bpm))
+                // Leer BPM cada 0.5s
+                if (bpmUpdateTimer >= 0.5f)
                 {
-                    textMesh.text = $"BPM: {bpm}";
-                    textMesh.characterSize = PluginConfig.TextSize;
+                    PluginConfig.LoadBpm();
+                    bpmUpdateTimer = 0f;
+                }
 
-                    float bpmScale = 1f;
-                    Color bpmColor = Color.green;
-                    if (bpm >= 200) { bpmScale = 1.6f; bpmColor = Color.magenta; }
-                    else if (bpm >= 170) { bpmScale = 1.4f; bpmColor = Color.red; }
-                    else if (bpm >= 140) { bpmScale = 1.3f; bpmColor = new Color(1f, 0.5f, 0f); }
-                    else if (bpm >= 120) { bpmScale = 1.2f; bpmColor = Color.yellow; }
-                    else if (bpm >= 100) { bpmScale = 1.1f; bpmColor = Color.green; }
+                // Mostrar BPM solo si ha cambiado
+                if (PluginConfig.PulsometerRaw != lastBpm)
+                {
+                    lastBpm = PluginConfig.PulsometerRaw;
 
-                    float bpmPulse = Mathf.PingPong(Time.time * 1.5f, 0.2f);
-                    textMesh.transform.localScale = new Vector3(bpmScale + bpmPulse, bpmScale + bpmPulse, bpmScale + bpmPulse);
-                    textMesh.color = bpmColor;
-
-                    bool isInGameplay = lastSceneName.ToLower().Contains("gamecore");
-                    if (isInGameplay && bpm > PluginConfig.MaxPulsometer)
+                    if (int.TryParse(lastBpm, out int bpm))
                     {
-                        overMaxTimer += 0.1f;
-                        int secondsLeft = Mathf.Max(0, Mathf.CeilToInt(waitSeconds - overMaxTimer));
+                        textMesh.text = $"BPM: {bpm}";
+                        textMesh.characterSize = PluginConfig.TextSize;
 
-                        if (overMaxCounterMesh != null)
-                        {
-                            float bounce = Mathf.Sin(Time.time * 8f) * 0.15f;
-                            float counterScale = 1f + Mathf.PingPong(Time.time * 2f, 0.3f);
-                            float alpha = 0.5f + Mathf.PingPong(Time.time * 3f, 0.5f);
-                            Color epicColor = Color.red; epicColor.a = alpha;
-                            overMaxCounterMesh.transform.localPosition = new Vector3(0f, 0.6f + bounce, 0f);
-                            overMaxCounterMesh.transform.localScale = new Vector3(counterScale, counterScale, counterScale);
-                            overMaxCounterMesh.color = epicColor;
-                            overMaxCounterMesh.text = secondsLeft.ToString();
-                        }
+                        // Escala y color según BPM
+                        float bpmScale = 1f;
+                        Color bpmColor = Color.green;
+                        if (bpm >= 200) { bpmScale = 1.6f; bpmColor = Color.magenta; }
+                        else if (bpm >= 170) { bpmScale = 1.4f; bpmColor = Color.red; }
+                        else if (bpm >= 140) { bpmScale = 1.3f; bpmColor = new Color(1f, 0.5f, 0f); }
+                        else if (bpm >= 120) { bpmScale = 1.2f; bpmColor = Color.yellow; }
+                        else if (bpm >= 100) { bpmScale = 1.1f; bpmColor = Color.green; }
 
-                        if (overMaxTimer >= waitSeconds && !isReturningToMenu)
-                        {
-                            ReturnToMenu();
-                        }
-                    }
-                    else
-                    {
-                        overMaxTimer = 0f;
-                        if (overMaxCounterMesh != null) overMaxCounterMesh.text = "";
+                        float bpmPulse = Mathf.PingPong(Time.time * 1.5f, 0.2f);
+                        textMesh.transform.localScale = new Vector3(bpmScale + bpmPulse, bpmScale + bpmPulse, bpmScale + bpmPulse);
+                        textMesh.color = bpmColor;
                     }
                 }
 
-                yield return new WaitForSeconds(0.1f);
+                // Comprobar si supera el máximo en gameplay
+                bool isInGameplay = lastSceneName.ToLower().Contains("gamecore");
+                if (isInGameplay && int.TryParse(lastBpm, out int currentBpm) && currentBpm > PluginConfig.MaxPulsometer)
+                {
+                    overMaxTimer += delta;
+                    int secondsLeft = Mathf.Max(0, Mathf.CeilToInt(waitSeconds - overMaxTimer));
+
+                    if (overMaxCounterMesh != null)
+                    {
+                        float bounce = Mathf.Sin(Time.time * 8f) * 0.15f;
+                        float counterScale = 1f + Mathf.PingPong(Time.time * 2f, 0.3f);
+                        float alpha = 0.5f + Mathf.PingPong(Time.time * 3f, 0.5f);
+                        Color epicColor = Color.red; epicColor.a = alpha;
+                        overMaxCounterMesh.transform.localPosition = new Vector3(0f, 0.6f + bounce, 0f);
+                        overMaxCounterMesh.transform.localScale = new Vector3(counterScale, counterScale, counterScale);
+                        overMaxCounterMesh.color = epicColor;
+                        overMaxCounterMesh.text = secondsLeft.ToString();
+                    }
+
+                    if (overMaxTimer >= waitSeconds && !isReturningToMenu)
+                    {
+                        ReturnToMenu();
+                    }
+                }
+                else
+                {
+                    overMaxTimer = 0f;
+                    if (overMaxCounterMesh != null) overMaxCounterMesh.text = "";
+                }
+
+                yield return null; // Actualización cada frame
             }
         }
+
         private static void ReturnToMenu()
         {
             BSHeartRateHTTPLocalRequest.Log?.Info("[Texto3D] Limite superado, cerrando el juego...");
