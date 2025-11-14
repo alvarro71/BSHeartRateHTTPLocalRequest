@@ -202,8 +202,8 @@ namespace BSHeartRateHTTPLocalRequest
             sourceGO.transform.localPosition = new Vector3(0f, -0.5f, 0f);
 
             var overMaxRoot = new GameObject("OverMaxRoot");
-            overMaxRoot.transform.position = transform.position; // mismo que el BPM
-            overMaxRoot.transform.rotation = transform.rotation; // misma rotación
+            overMaxRoot.transform.position = transform.position;
+            overMaxRoot.transform.rotation = transform.rotation;
             DontDestroyOnLoad(overMaxRoot);
 
             var counterGO = new GameObject("OverMaxCounter");
@@ -215,11 +215,10 @@ namespace BSHeartRateHTTPLocalRequest
             overMaxCounterMesh.alignment = TextAlignment.Center;
             overMaxCounterMesh.color = Color.red;
 
-            // Lo hacemos hijo de OverMaxRoot, pero su escala local será independiente
             counterGO.transform.parent = overMaxRoot.transform;
-            counterGO.transform.localPosition = new Vector3(0f, 0.6f, 0f); // encima del BPM
+            counterGO.transform.localPosition = new Vector3(0f, 0.6f, 0f);
             counterGO.transform.localRotation = Quaternion.identity;
-            counterGO.transform.localScale = Vector3.one; // escala inicial
+            counterGO.transform.localScale = Vector3.one;
 
             StartCoroutine(BpmReaderLoop());
             StartCoroutine(PulseAnimationLoop());
