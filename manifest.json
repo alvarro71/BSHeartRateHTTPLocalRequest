@@ -3,7 +3,7 @@
   "id": "BSHeartRateHTTPLocalRequest",
   "name": "BSHeartRateHTTPLocalRequest",
   "author": "alvarro71",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Heart rate on a folder",
   "gameVersion": "1.37.1",
   "dependsOn": {
